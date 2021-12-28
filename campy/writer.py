@@ -54,6 +54,7 @@ def OpenWriter(cam_params, queue):
 
 		# GPU compression
 		else:
+			
 			# Nvidia GPU (NVENC) encoder optimized parameters
 			print("Opened: {} using GPU {} to compress the stream.".format(full_file_name, cam_params["gpuID"]))
 			if cam_params["gpuMake"] == "nvidia":
@@ -71,6 +72,23 @@ def OpenWriter(cam_params, queue):
 					codec = "h264_nvenc"
 				elif cam_params["codec"] == "h265":
 					codec = "hevc_nvenc"
+			
+			# L4T 
+			elif cam_params["gpuMake"] == "L4T":
+				if preset == "None":
+					preset = "fast"
+				gpu_params = ["-r:v", frameRate, # important to play nice with vsync "0"
+							"-preset", preset, # set to "fast", "llhp", or "llhq" for h264 or hevc
+							"-qp", quality,
+							"-bf:v", "0",
+							"-vsync", "0",
+							"-2pass", "0",
+							"-gpu", gpuID,
+							]
+				if cam_params["codec"] == "h264":
+					codec = "h264_nvmpi"
+				#elif cam_params["codec"] == "h265":
+				#	codec = "hevc_nvenc"
 
 			# AMD GPU (AMF/VCE) encoder optimized parameters
 			elif cam_params["gpuMake"] == "amd":
